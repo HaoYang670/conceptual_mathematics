@@ -17,7 +17,7 @@ Definition composition {domain: Object} {mid: Object} {codomain: Object}
   := fun x => g (f x).
 
 (** The identity function is a unit in the composition *)
-Theorem identity_law: forall (A B: Object) (f: Morphism A B),
+Theorem composition_id: forall (A B: Object) (f: Morphism A B),
   composition (identity A) f = f /\ composition f (identity B) = f.
 Proof.
   unfold composition. unfold identity. intros.
@@ -26,7 +26,7 @@ Proof.
 Qed.
 
 (** h o (g o f) = (h o g) o f *)
-Theorem associative_law: forall (A B C D: Object) (f: Morphism A B) (g: Morphism B C) (h: Morphism C D),
+Theorem composition_assoc: forall (A B C D: Object) (f: Morphism A B) (g: Morphism B C) (h: Morphism C D),
   composition (composition f g) h = composition f (composition g h).
 Proof.
   intros. unfold composition. reflexivity.
