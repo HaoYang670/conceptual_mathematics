@@ -1,7 +1,31 @@
+From Coq Require Import Logic.FunctionalExtensionality.
 From CM Require Import Category.
 
+Definition inverse {A B: Object} (f: Morphism A B) (g: Morphism B A) :=
+  composition f g = identity A /\ composition g f = identity B.
+
+(** A morphism cannot have more than one inverse.
+  The Idea is to prove (g . f . k = g . f . g),
+  then use the associtivity law to prove ((g . f) . k = (g . f) . g),
+  finally use the identity law to prove (k = g).
+*)
+Theorem inverse_unique: forall (A B: Object) (f: Morphism A B) (g k: Morphism B A),
+  inverse f g ->
+  inverse f k ->
+  g = k.
+Proof.
+  intros. unfold inverse in *. destruct H, H0.
+  assert (H3: composition g (composition f k) = composition g (composition f g)).
+  { rewrite H. rewrite H0. reflexivity. }
+  repeat rewrite <- composition_assoc in H3.
+  rewrite H1 in H3. destruct (composition_id B A k) as [H4 _].
+  destruct (composition_id B A g) as [H5 _].
+  rewrite H4 in H3. rewrite H5 in H3.
+  symmetry. apply H3.
+Qed.
+
 Definition isomorphism {A B: Object} (f: Morphism A B) :=
-  exists g: Morphism B A, composition f g = identity A /\ composition g f = identity B.
+  exists g: Morphism B A, inverse f g.
 
 Definition isomorphic (A B: Object) :=
   exists f: Morphism A B, isomorphism f.
