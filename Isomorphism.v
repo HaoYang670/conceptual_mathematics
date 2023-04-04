@@ -100,3 +100,31 @@ Module Isomorphic.
       rewrite H3. rewrite H1. destruct (composition_id B C x0). rewrite H4. assumption.
   Qed.
 End Isomorphic.
+
+Module Section.
+  (* s is a section of f*)
+  Definition section {A B} (f: Morphism A B) (s: Morphism B A): Prop :=
+    compose s f = identity B.
+  
+  Lemma Proposition1: forall (A B: Object) (f: Morphism A B),
+    (exists s, section f s) ->
+    forall (T: Object) y, exists (x: Morphism T A), compose x f = y.
+  Proof.
+    intros A B f [s H] T y. exists (compose y s).
+    rewrite composition_assoc. rewrite H. apply composition_id_right.
+  Qed.
+End Section.
+
+Module Retraction.
+  (* r is a retraction of f*)
+  Definition retraction {A B} (f: Morphism A B) (r: Morphism B A): Prop :=
+    compose f r = identity A.
+  
+  Lemma Proposition1_dual: forall (A B: Object) (f: Morphism A B),
+    (exists r, retraction f r) ->
+    forall (T: Object) g, exists (t: Morphism B T), compose f t = g.
+  Proof.
+    intros A B f [r H] T g. exists (compose r g).
+    rewrite <- composition_assoc. rewrite H. apply composition_id_left.
+  Qed.
+End Retraction.
