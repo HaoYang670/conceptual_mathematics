@@ -127,4 +127,20 @@ Module Retraction.
     intros A B f [r H] T g. exists (compose r g).
     rewrite <- composition_assoc. rewrite H. apply composition_id_left.
   Qed.
+
+  Lemma Proposition2: forall (A B: Object) (f: Morphism A B),
+    (exists r, retraction f r) ->
+    forall (T: Object) (x1 x2: Morphism T A),
+      compose x1 f = compose x2 f -> x1 = x2.
+  Proof.
+    intros. destruct H as [r H].
+    assert (helper: compose (compose x1 f) r = compose (compose x2 f) r).
+    { rewrite H0. reflexivity. }
+    clear H0. repeat rewrite composition_assoc in helper.
+    rewrite H in helper. repeat rewrite composition_id_right in helper.
+    apply helper.
+  Qed.
+
+  Definition injective {A B: Object} (f: Morphism A B) := Proposition2 A B f.
+  Definition monomorphism {A B: Object} (f: Morphism A B) := injective f.
 End Retraction.
