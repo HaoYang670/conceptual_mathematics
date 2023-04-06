@@ -1,4 +1,3 @@
-From Coq Require Import Logic.FunctionalExtensionality.
 From CM Require Import Category.
 
 Module Inverse.
