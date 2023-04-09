@@ -112,6 +112,19 @@ Module Section.
     intros A B f [s H] T y. exists (compose y s).
     rewrite composition_assoc. rewrite H. apply composition_id_right.
   Qed.
+
+  Lemma Proposition2_dual: forall (A B: Object) (f: Morphism A B),
+    (exists s, section f s) ->
+    forall (T: Object) (t1 t2: Morphism B T),
+      compose f t1 = compose f t2 -> t1 = t2.
+  Proof.
+    intros. destruct H as [s H].
+    assert (helper: compose s (compose f t1) = compose s (compose f t2)).
+    { rewrite H0. reflexivity. }
+    repeat rewrite <- composition_assoc in helper.
+    rewrite H in helper. repeat rewrite composition_id_left in helper.
+    apply helper.
+  Qed.
 End Section.
 
 Module Retraction.
