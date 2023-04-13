@@ -8,6 +8,7 @@ Definition Singleton: Object := True.
 Definition Morphism (domain: Object) (codomain: Object): Type:= domain -> codomain.
 
 Definition EndoMorphism (domain: Object): Type := Morphism domain domain.
+
 (* All Objects has an identity morphism *)
 Definition identity (x: Object): (Morphism x x) :=
   fun x => x.
@@ -16,6 +17,8 @@ Definition identity (x: Object): (Morphism x x) :=
 Definition compose {domain: Object} {mid: Object} {codomain: Object} 
   (f: Morphism domain mid) (g: Morphism mid codomain): (Morphism domain codomain)
   := fun x => g (f x).
+
+Definition Idempotent {A: Object} (e: EndoMorphism A) := compose e e = e.
 
 (** The identity function is a unit in the composition *)
 Theorem composition_id: forall (A B: Object) (f: Morphism A B),
