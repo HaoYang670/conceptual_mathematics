@@ -7,6 +7,7 @@ Definition Singleton: Object := True.
 
 Definition Morphism (domain: Object) (codomain: Object): Type:= domain -> codomain.
 
+Definition EndoMorphism (domain: Object): Type := Morphism domain domain.
 (* All Objects has an identity morphism *)
 Definition identity (x: Object): (Morphism x x) :=
   fun x => x.
