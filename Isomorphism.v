@@ -128,6 +128,17 @@ Module Section.
 
   Definition epimorphism {A B: Object} (f: Morphism A B) := Proposition2_dual A B f.
   
+  Lemma Proposition3_dual: forall (A B C: Object) (f: Morphism A B) (g: Morphism B C) s1 s2,
+    section f s1 ->
+    section g s2 ->
+    exists r3, section (compose f g) r3.
+  Proof.
+    intros. exists (compose s2 s1). unfold section. rewrite composition_assoc.
+    assert (H1: compose s1 (compose f g) = g).
+    { rewrite <- composition_assoc. rewrite H. apply composition_id_left. }
+    rewrite H1. apply H0.
+  Qed.
+  
 End Section.
 
 Module Retraction.
