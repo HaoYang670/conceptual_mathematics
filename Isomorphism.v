@@ -100,11 +100,12 @@ Module Isomorphic.
   Qed.
 End Isomorphic.
 
-Module Section.
-  (* s is a section of f*)
+Module RetractionAndSection.
+  Definition retraction {A B} (f: Morphism A B) (r: Morphism B A): Prop :=
+    compose f r = identity A.
   Definition section {A B} (f: Morphism A B) (s: Morphism B A): Prop :=
-    compose s f = identity B.
-  
+    retraction s f.
+
   Lemma Proposition1: forall (A B: Object) (f: Morphism A B),
     (exists s, section f s) ->
     forall (T: Object) y, exists (x: Morphism T A), compose x f = y.
@@ -113,39 +114,6 @@ Module Section.
     rewrite composition_assoc. rewrite H. apply composition_id_right.
   Qed.
 
-  Lemma Proposition2_dual: forall (A B: Object) (f: Morphism A B),
-    (exists s, section f s) ->
-    forall (T: Object) (t1 t2: Morphism B T),
-      compose f t1 = compose f t2 -> t1 = t2.
-  Proof.
-    intros. destruct H as [s H].
-    assert (helper: compose s (compose f t1) = compose s (compose f t2)).
-    { rewrite H0. reflexivity. }
-    repeat rewrite <- composition_assoc in helper.
-    rewrite H in helper. repeat rewrite composition_id_left in helper.
-    apply helper.
-  Qed.
-
-  Definition epimorphism {A B: Object} (f: Morphism A B) := Proposition2_dual A B f.
-  
-  Lemma Proposition3_dual: forall (A B C: Object) (f: Morphism A B) (g: Morphism B C) s1 s2,
-    section f s1 ->
-    section g s2 ->
-    exists r3, section (compose f g) r3.
-  Proof.
-    intros. exists (compose s2 s1). unfold section. rewrite composition_assoc.
-    assert (H1: compose s1 (compose f g) = g).
-    { rewrite <- composition_assoc. rewrite H. apply composition_id_left. }
-    rewrite H1. apply H0.
-  Qed.
-  
-End Section.
-
-Module Retraction.
-  (* r is a retraction of f*)
-  Definition retraction {A B} (f: Morphism A B) (r: Morphism B A): Prop :=
-    compose f r = identity A.
-  
   Lemma Proposition1_dual: forall (A B: Object) (f: Morphism A B),
     (exists r, retraction f r) ->
     forall (T: Object) g, exists (t: Morphism B T), compose f t = g.
@@ -167,6 +135,19 @@ Module Retraction.
     apply helper.
   Qed.
 
+  Lemma Proposition2_dual: forall (A B: Object) (f: Morphism A B),
+    (exists s, section f s) ->
+    forall (T: Object) (t1 t2: Morphism B T),
+      compose f t1 = compose f t2 -> t1 = t2.
+  Proof.
+    intros. destruct H as [s H].
+    assert (helper: compose s (compose f t1) = compose s (compose f t2)).
+    { rewrite H0. reflexivity. }
+    repeat rewrite <- composition_assoc in helper.
+    rewrite H in helper. repeat rewrite composition_id_left in helper.
+    apply helper.
+  Qed.
+
   Definition injective {A B: Object} (f: Morphism A B) := Proposition2 A B f.
   Definition monomorphism {A B: Object} (f: Morphism A B) := injective f.
 
@@ -180,5 +161,18 @@ Module Retraction.
     { rewrite <- composition_assoc. rewrite H0. apply composition_id_left. }
     rewrite H1. apply H.
   Qed.
+
+  Definition epimorphism {A B: Object} (f: Morphism A B) := Proposition2_dual A B f.
   
-End Retraction.
+  Lemma Proposition3_dual: forall (A B C: Object) (f: Morphism A B) (g: Morphism B C) s1 s2,
+    section f s1 ->
+    section g s2 ->
+    exists r3, section (compose f g) r3.
+  Proof.
+    intros. exists (compose s2 s1). unfold section. unfold retraction. rewrite composition_assoc.
+    assert (H1: compose s1 (compose f g) = g).
+    { rewrite <- composition_assoc. rewrite H. apply composition_id_left. }
+    rewrite H1. apply H0.
+  Qed.
+
+End RetractionAndSection.
