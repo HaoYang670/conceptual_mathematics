@@ -175,4 +175,21 @@ Module RetractionAndSection.
     rewrite H1. apply H0.
   Qed.
 
+  Lemma Idempotent_retraction: forall (A B: Object) (f: Morphism A B) r,
+    retraction f r ->
+    Idempotent (compose f r).
+  Proof.
+    intros. unfold Idempotent. unfold retraction in H. rewrite H. auto.
+  Qed.
+
+  Theorem uniqueness_of_inverses: forall (A B: Object) (f: Morphism A B) r s,
+    retraction f r ->
+    section f s ->
+    r = s.
+  Proof.
+    intros. unfold section in H0. unfold retraction in H, H0.
+    rewrite <- composition_id_right. rewrite <- H.
+    rewrite <- composition_assoc. rewrite H0.
+    auto.
+  Qed.
 End RetractionAndSection.
