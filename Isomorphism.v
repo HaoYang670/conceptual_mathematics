@@ -193,3 +193,7 @@ Module RetractionAndSection.
     auto.
   Qed.
 End RetractionAndSection.
+
+Module IsomorphismsAndAutomorphisms.
+  
+End IsomorphismsAndAutomorphisms.
