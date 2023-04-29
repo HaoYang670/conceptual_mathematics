@@ -57,6 +57,21 @@ Module Isomorphism.
     unfold inverse in H. destruct H. rewrite H in H1. 
     repeat rewrite composition_id_right in H1. apply H1.
   Qed.
+
+  Theorem isomorphism_compose:
+    forall (A B C: Object) (f: Morphism A B) (g: Morphism B C) f' g',
+      inverse f f' /\ inverse g g' ->
+      inverse (compose f g) (compose g' f').
+  Proof.
+    intros. destruct H. destruct H. destruct H0. split; rewrite composition_assoc.
+    - assert (compose g (compose g' f') = f').
+      { rewrite <- composition_assoc. rewrite H0. auto. }
+      rewrite H3. auto.
+    - assert (compose f' (compose f g) = g).
+      { rewrite <- composition_assoc. rewrite H1. auto. }
+      rewrite H3. auto.
+  Qed.
+
 End Isomorphism.
 
 Module Isomorphic.
