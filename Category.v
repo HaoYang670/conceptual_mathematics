@@ -1,6 +1,6 @@
 From Coq Require Import Logic.FunctionalExtensionality.
 
-Definition Object: Type := Type.
+Definition Object := Type.
 
 (* ‘singleton’ set, a set with exactly one element. *)
 Definition Singleton: Object := True.

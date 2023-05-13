@@ -25,12 +25,15 @@ End Inverse.
 
 Module Isomorphism.
   Import Inverse.
-  Definition isomorphism {A B: Object} (f: Morphism A B) :=
+  Definition isIsomorphism {A B: Object} (f: Morphism A B) :=
     exists g: Morphism B A, inverse f g.
+
+  Definition isomorphismSet (A B: Object): Object :=
+    {f: Morphism A B | isIsomorphism f}.
 
   Theorem isomorphism_cancellation_left: 
     forall (A B C: Object) (f: Morphism A B) (h k: Morphism B C),
-      isomorphism f ->
+      isIsomorphism f ->
       compose f h = compose f k ->
       h = k.
   Proof.
@@ -45,7 +48,7 @@ Module Isomorphism.
 
   Theorem isomorphism_cancellation_right: 
     forall (A B C: Object) (f: Morphism A B) (h k: Morphism C A),
-      isomorphism f ->
+      isIsomorphism f ->
       compose h f = compose k f ->
       h = k.
   Proof.
@@ -59,17 +62,20 @@ Module Isomorphism.
   Qed.
 
   Theorem isomorphism_compose:
-    forall (A B C: Object) (f: Morphism A B) (g: Morphism B C) f' g',
-      inverse f f' /\ inverse g g' ->
-      inverse (compose f g) (compose g' f').
+    forall (A B C: Object) (f: Morphism A B) (g: Morphism B C),
+      isIsomorphism f ->
+      isIsomorphism g ->
+      isIsomorphism (compose f g).
   Proof.
-    intros. destruct H. destruct H. destruct H0. split; rewrite composition_assoc.
+    unfold isIsomorphism. intros A B C f g [f' [Hf0 Hf1]] [g' [Hg0 Hg1]].
+    exists (compose g' f'). unfold inverse.
+    split; rewrite composition_assoc.
     - assert (compose g (compose g' f') = f').
-      { rewrite <- composition_assoc. rewrite H0. auto. }
-      rewrite H3. auto.
+      { rewrite <- composition_assoc. rewrite Hg0. auto. }
+      rewrite H. auto.
     - assert (compose f' (compose f g) = g).
-      { rewrite <- composition_assoc. rewrite H1. auto. }
-      rewrite H3. auto.
+      { rewrite <- composition_assoc. rewrite Hf1. auto. }
+      rewrite H. auto.
   Qed.
 
 End Isomorphism.
@@ -78,14 +84,14 @@ Module Isomorphic.
   Import Isomorphism.
 
   Definition isomorphic (A B: Object) :=
-    exists f: Morphism A B, isomorphism f.
+    exists f: Morphism A B, isIsomorphism f.
 
   (* A is isomorphic to A. *)
   Theorem isomorphic_refl: forall A: Object,
     isomorphic A A.
   Proof.
     intros. unfold isomorphic. exists (identity A).
-    unfold isomorphism. exists (identity A). 
+    unfold isIsomorphism. exists (identity A). 
     split; apply composition_id.
   Qed.
 
@@ -209,6 +215,50 @@ Module RetractionAndSection.
   Qed.
 End RetractionAndSection.
 
-Module IsomorphismsAndAutomorphisms.
+Module Automorphisms.
+  Import Isomorphism.
+  Import Isomorphic.
+  From Coq Require Import Logic.FunctionalExtensionality.
+
+  Definition isAutomorphism {A: Object} := isIsomorphism (A := A) (B := A).
+
+  Definition automorphismSet (A: Object): Object :=
+    {f: EndoMorphism A | isAutomorphism f}.
   
-End IsomorphismsAndAutomorphisms.
+  Lemma compose_auto_iso_is_iso: forall A B a (f: Morphism A B),
+    isAutomorphism a ->
+    isIsomorphism f ->
+    isIsomorphism (compose a f).
+  Proof.
+    unfold isAutomorphism. intros. apply isomorphism_compose; auto.
+  Qed.
+
+  (* if there are any isomorphisms A —> B,
+     then there are the same number of them as there are automorphisms of A. *)
+  Theorem Iso_auto_isomorphic: forall A B,
+    isomorphic A B ->
+    isomorphic (automorphismSet A) (isomorphismSet A B).
+  Proof.
+    unfold isomorphic. intros A B [f H].
+    exists (fun (ams: automorphismSet A) =>
+      let 'exist _ a pa := ams in
+      exist _ (compose a f) (compose_auto_iso_is_iso A B a f pa H)).
+    destruct H as [f' H].
+    assert (H': isIsomorphism f'). { exists f. destruct H. split; auto. }
+    exists (fun (ims: isomorphismSet A B) =>
+      let 'exist _ g pg := ims in
+      exist _ (compose g f') (isomorphism_compose A B A g f' pg  H')).
+    split.
+    - apply functional_extensionality. intros [a Ha].
+      unfold compose. unfold identity.
+      assert (H0: isIsomorphism = (fun f0 : EndoMorphism A => isAutomorphism f0)). { auto. }
+      assert (H1: (fun x : A => f' (f (a x))) = a).
+      {
+        assert (H1: (fun x : A => f' (f (a x))) = compose a (compose f f')).
+        { unfold compose. auto. }
+        rewrite H1. rewrite (proj1 H). apply composition_id_right.
+      }
+      apply eq_exist_curried with H1. unfold eq_rect.
+      (* related to dependent type which I don't know now. *)
+      Admitted.
+End Automorphisms.
